@@ -3,14 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>跳动爱心</title>
+<title>张家界学院土木招新</title>
 <style>
 *{margin:0;padding:0}
 body{background:#000;overflow:hidden}
-canvas{display:block;margin:0 auto}
+canvas{display:block}
+.text-box{
+    position: fixed;
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    color:#ff6b81;
+    font-weight:bold;
+    text-align:center;
+    font-size:clamp(16px,4vw,28px);
+    white-space:normal;
+    text-shadow:0 0 8px #ff4757;
+}
 </style>
 </head>
 <body>
+<div class="text-box">
+张家界学院土木工程2026年招新了！<br>
+罗璇学姐一带一带你参加国赛。<br>
+走过路过不要错过！！！
+</div>
 <canvas id="c"></canvas>
 <script>
 const canvas = document.getElementById('c');
@@ -19,13 +36,14 @@ let W = canvas.width = window.innerWidth;
 let H = canvas.height = window.innerHeight;
 const CX = W/2, CY = H/2;
 const SCALE = 11;
-const COLOR = "aquamarine";
+const COLOR = "#ff8797";
 
 //爱心参数方程
 function heartFunc(t){
     let x = 17 * Math.sin(t)**3;
     let y = -(16*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
-    x *= SCALE; y *= SCALE;
+    x *= SCALE;
+    y *= SCALE;
     return [x+CX, y+CY];
 }
 
@@ -41,7 +59,6 @@ let points = new Set();
 let edgeDiff = new Set();
 let centerDiff = new Set();
 
-//生成基础点
 for(let i=0;i<2000;i++){
     let t = Math.random()*Math.PI*2;
     let [x,y] = heartFunc(t);
@@ -49,16 +66,23 @@ for(let i=0;i<2000;i++){
 }
 
 for(let pStr of points){
-    let [x,y] = pStr.split(',').map(Number);
+    let arr = pStr.split(',');
+    let x = Number(arr[0]);
+    let y = Number(arr[1]);
     for(let i=0;i<3;i++){
         let [nx,ny] = scatterInside(x,y,0.05);
         edgeDiff.add(nx+","+ny);
     }
 }
 
-let pointArr = Array.from(points).map(s=>s.split(',').map(Number));
+let pointArr = Array.from(points).map(s=>{
+    let arr = s.split(',');
+    return [Number(arr[0]), Number(arr[1])];
+});
+
 for(let i=0;i<10000;i++){
-    let [x,y] = pointArr[Math.floor(Math.random()*pointArr.length)];
+    let idx = Math.floor(Math.random()*pointArr.length);
+    let [x,y] = pointArr[idx];
     let [nx,ny] = scatterInside(x,y,0.27);
     centerDiff.add(nx+","+ny);
 }
@@ -87,23 +111,26 @@ function draw(){
     let ratio = 15 * curve(f /10 * Math.PI);
 
     ctx.fillStyle = COLOR;
-    //绘制原始点
     for(let s of points){
-        let [x,y] = s.split(',').map(Number);
+        let arr = s.split(',');
+        let x = Number(arr[0]);
+        let y = Number(arr[1]);
         let [nx, ny] = calcPos(x,y,ratio);
         let sz = 1+Math.floor(Math.random()*3);
         ctx.fillRect(nx,ny,sz,sz);
     }
-    //边缘扩散点
     for(let s of edgeDiff){
-        let [x,y] = s.split(',').map(Number);
+        let arr = s.split(',');
+        let x = Number(arr[0]);
+        let y = Number(arr[1]);
         let [nx, ny] = calcPos(x,y,ratio);
         let sz = 1+Math.floor(Math.random()*2);
         ctx.fillRect(nx,ny,sz,sz);
     }
-    //中心扩散点
     for(let s of centerDiff){
-        let [x,y] = s.split(',').map(Number);
+        let arr = s.split(',');
+        let x = Number(arr[0]);
+        let y = Number(arr[1]);
         let [nx, ny] = calcPos(x,y,ratio);
         let sz = 1+Math.floor(Math.random()*2);
         ctx.fillRect(nx,ny,sz,sz);
@@ -113,6 +140,7 @@ function draw(){
     requestAnimationFrame(draw);
 }
 draw();
+
 window.addEventListener('resize',()=>{
     W=canvas.width=window.innerWidth;
     H=canvas.height=window.innerHeight;
